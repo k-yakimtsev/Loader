@@ -5,6 +5,9 @@
     <title>Document</title>
 </head>
 <body>
+
+
+
     <style>
        .gallery img {
           height: 150px;
@@ -56,9 +59,6 @@
     </style>
 
     <div class="gallery">
-       <img src="http://wrong.url1" alt="Image 7"/>
-       <img src="http://wrong.url2" alt="Image 7"/>
-       <img src="http://wrong.url3" alt="Image 7"/>
        <img src="https://farm2.staticflickr.com/1580/25180703901_8d151b1260_b.jpg" alt="Image 1"/>
        <img src="https://farm2.staticflickr.com/1569/25155568712_d2b27e77ef_b.jpg" alt="Image 2"/>
        <img src="https://farm2.staticflickr.com/1627/25247562596_a50669cfcf_b.jpg" alt="Image 3"/>
@@ -91,69 +91,39 @@
                     this.loaderPercent = document.getElementById('loaderPercent');
                     this.images = document.getElementsByTagName('img');
                     this.imagesCount = this.images.length;
-                    this.itemValue = Math.ceil((100 / this.imagesCount)*100)/100;
-                    this.widthLoader = this.loaderPercent.offsetWidth;
-                    this.itemWidth = Math.ceil((this.widthLoader / this.imagesCount)*100)/100;
-                    this.currentWidthProgressBar = 0;
-                    this.errorLinks = '';
+                    this.itemValue = Math.ceil((100 / this.imagesCount)*1)/1;
+                    this.currentValue = 0;
 
                     this.events();
                 },
 
                 events: function() {
-                    var that = this;
-
                     for (var item in this.images) {
                         if(this.images.hasOwnProperty(item) ) {
-                            this.images[item].onerror = this.loadImage;
-                            this.images[item].onload = this.loadImage;
+                            this.images[item].onerror = this.loadImage.bind(this);
+                            this.images[item].onload = this.loadImage.bind(this);
                         }
                     }
 
                     this.loadedCallback();
                 },
 
-                loadImage: function(event) {
-                    if (event.type === 'load') {
-                        Loader.increaseProgressBar(true);
-                    } else {
-                        Loader.increaseProgressBar(false, event.target.src);
+                loadImage: function() {
+                    this.currentValue += this.itemValue;
+                    if (this.currentValue > 100) {
+                        this.currentValue = 100;
                     }
+
+                    this.increaseProgressBar();
                 },
 
-                increaseProgressBar: function(value, link) {
-                    if (value == true) {
-                        var currentValue = parseFloat(this.loaderPercent.innerHTML);
-                        currentValue += this.itemValue;
-                        currentValue = Math.ceil((currentValue)*100)/100;
-                        if (currentValue > 100) {
-                            this.loaderPercent.innerHTML = "100%";
-                        } else {
-                            this.loaderPercent.innerHTML = currentValue + "%";
-                        }
-
-                        this.currentWidthProgressBar += this.itemWidth;
-                        this.currentWidthProgressBar = Math.ceil((this.currentWidthProgressBar)*100)/100;
-                        if (this.currentWidthProgressBar > this.widthLoader) {
-                            this.progressBar.style.width = this.widthLoader + "px";
-                        } else {
-                            this.progressBar.style.width = this.currentWidthProgressBar + "px";
-                        }
-                    } else {
-                        this.progressBar.style.background = "red";
-                        if (this.errorLinks == '') {
-                            this.errorLinks = link;
-                        } else {
-                            this.errorLinks += ', ' + link;
-                        }
-                    }
+                increaseProgressBar: function() {
+                    this.loaderPercent.innerHTML = this.currentValue + "%";
+                    this.progressBar.style.width = this.currentValue + "%";
                 },
 
                 loadedCallback: function() {
                     setTimeout(function(){
-                        if (Loader.errorLinks != '') {
-                            alert("Элементы с силками: "+ Loader.errorLinks +" не были загружены");
-                        }
                         this.loader.style.display = "none";
                     }, 1500);
                 }
